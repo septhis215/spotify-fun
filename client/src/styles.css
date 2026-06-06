@@ -1,0 +1,463 @@
+/* ============================================================
+   The Gramophone — a vintage Spotify player (global styles)
+   Palette: walnut wood, aged brass, lamplight amber, foxed paper
+   ============================================================ */
+:root {
+  --wood-0: #1c110a;
+  --wood-1: #2b1a0f;
+  --wood-2: #3d2716;
+  --wood-3: #5a3a20;
+  --brass: #c9a14a;
+  --brass-lt: #f0d488;
+  --brass-dk: #8a6a28;
+  --amber: #ffb24d;
+  --amber-glow: rgba(255, 178, 77, 0.55);
+  --paper: #ece0c0;
+  --paper-2: #e3d3aa;
+  --paper-edge: #b8a06a;
+  --ink: #4a3825;
+  --ink-soft: #7c6648;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: #f3e7cf;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(110, 74, 40, 0.55) 0%, transparent 60%),
+    repeating-linear-gradient(92deg, rgba(0,0,0,0.18) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(88deg, rgba(255,210,150,0.04) 0 3px, transparent 3px 11px),
+    linear-gradient(160deg, var(--wood-2), var(--wood-0));
+  background-blend-mode: overlay, overlay, normal, normal;
+  overflow: hidden;
+}
+app-root { display: block; height: 100%; }
+
+/* ---------- old-film overlays ---------- */
+.grain {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  opacity: 0.06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 0.6s steps(2) infinite, flicker 6s ease-in-out infinite;
+}
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-4%, 3%); }
+  100% { transform: translate(3%, -2%); }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 0.05; }
+  47% { opacity: 0.06; }
+  50% { opacity: 0.10; }
+  53% { opacity: 0.045; }
+  72% { opacity: 0.08; }
+}
+.vignette {
+  position: fixed; inset: 0; z-index: 55; pointer-events: none;
+  background: radial-gradient(120% 100% at 50% 45%, transparent 52%, rgba(0,0,0,0.55) 100%);
+}
+
+/* ---------- brass buttons ---------- */
+.brass-btn {
+  display: inline-block;
+  font-family: "Special Elite", monospace;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: #2a1c08;
+  background: linear-gradient(180deg, var(--brass-lt), var(--brass) 55%, var(--brass-dk));
+  border: 1px solid #6b5018;
+  border-radius: 6px;
+  padding: 12px 22px;
+  font-size: 15px;
+  box-shadow: 0 2px 0 #3a2a0c, 0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.2s;
+}
+.brass-btn:hover { filter: brightness(1.08); }
+.brass-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #3a2a0c, inset 0 1px 4px rgba(0,0,0,0.4); }
+.brass-btn.small { padding: 7px 13px; font-size: 12px; }
+
+.ghost-btn {
+  background: none; border: none; color: var(--brass-lt);
+  font-family: "Special Elite", monospace; font-size: 13px; cursor: pointer;
+  padding: 4px 0; opacity: 0.85; text-align: left;
+}
+.ghost-btn:hover { opacity: 1; text-shadow: 0 0 8px var(--amber-glow); }
+
+/* ---------- login gate ---------- */
+.gate { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; }
+.gate-card {
+  text-align: center; padding: 48px 56px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 2px, transparent 2px 8px),
+    linear-gradient(160deg, var(--wood-3), var(--wood-1));
+  border: 2px solid var(--brass-dk);
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,0,0,0.4);
+}
+.gate-emblem { font-size: 42px; color: var(--brass); text-shadow: 0 0 18px var(--amber-glow); }
+.gate-card h1 { font-family: "Limelight", serif; font-size: 40px; margin: 10px 0 6px; color: var(--brass-lt); letter-spacing: 1px; }
+.gate-card p { color: #d8c6a0; margin: 0 0 26px; font-size: 18px; font-style: italic; }
+
+/* ---------- notice banner ---------- */
+.notice {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  text-align: center; padding: 10px 16px;
+  font-family: "Special Elite", monospace; font-size: 13px;
+  color: #2a1c08; background: linear-gradient(180deg, var(--brass-lt), var(--brass));
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+
+/* ---------- app shell ---------- */
+.app { height: 100vh; display: flex; flex-direction: column; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  background: linear-gradient(180deg, rgba(20,14,9,0.55), rgba(20,14,9,0.12));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(201,161,74,0.18);
+}
+.brand { font-family: "Limelight", serif; font-size: 22px; color: var(--brass-lt); letter-spacing: 1px; }
+.brand-mark { color: var(--brass); text-shadow: 0 0 10px var(--amber-glow); }
+.who { display: flex; align-items: center; gap: 12px; font-size: 17px; color: #e7d8b6; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--brass); object-fit: cover; }
+
+/* Flexbox layout. NOTE: the direct children of .stage are the Angular
+   component HOST elements (<app-search>/<app-lyrics>/<app-deck>), which are
+   inline by default — so the flex sizing must target those hosts, and each
+   host is made a flex container so its inner panel fills it. */
+.stage {
+  flex: 1; min-height: 0;
+  display: flex; align-items: stretch;
+  gap: 18px; padding: 18px 22px 24px;
+}
+.stage > app-search { flex: 0 0 320px; }
+.stage > app-lyrics { flex: 1 1 auto; min-width: 0; }
+.stage > app-deck { flex: 0 0 360px; }
+.stage > app-search,
+.stage > app-lyrics,
+.stage > app-deck { display: flex; min-height: 0; }
+/* The inner panel fills its host (both axes via flex + stretch). */
+.stage > app-search > .crate,
+.stage > app-lyrics > .lyrics-stage,
+.stage > app-deck > .deck { flex: 1 1 auto; min-width: 0; min-height: 0; }
+
+/* ---------- crate (playlists / tracks) ---------- */
+.crate {
+  background: linear-gradient(160deg, rgba(42,31,22,0.58), rgba(16,12,8,0.66));
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid rgba(201,161,74,0.18);
+  border-radius: 18px;
+  padding: 16px; display: flex; flex-direction: column; min-height: 0;
+  box-shadow: 0 24px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.crate-head { display: flex; flex-direction: column; gap: 4px; padding: 4px 4px 12px; border-bottom: 1px solid rgba(201,161,74,0.2); }
+.crate-head h2 { margin: 0; font-family: "Limelight", serif; font-size: 19px; color: var(--brass-lt); letter-spacing: 0.5px; }
+.crate-list { overflow-y: auto; margin-top: 10px; padding-right: 4px; flex: 1 1 auto; min-height: 0; }
+
+/* ---------- search box ---------- */
+.search-box {
+  display: flex; align-items: center; gap: 8px; margin-top: 10px;
+  padding: 8px 12px; border-radius: 8px;
+  background: linear-gradient(180deg, #1a110a, #2c1d10);
+  border: 1px solid var(--brass-dk);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.7);
+}
+.search-box:focus-within { border-color: var(--brass); box-shadow: inset 0 2px 6px rgba(0,0,0,0.7), 0 0 10px var(--amber-glow); }
+.search-ico { color: var(--brass); font-size: 18px; line-height: 1; }
+.search-input {
+  flex: 1; background: none; border: none; outline: none;
+  color: #f3e7cf; font-family: "Special Elite", monospace; font-size: 14px;
+}
+.search-input::placeholder { color: var(--ink-soft); opacity: 0.8; }
+
+.crate-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px; border-radius: 8px; cursor: pointer; text-align: left;
+  background: none; border: 1px solid transparent; color: inherit;
+  font-family: inherit; transition: background 0.15s, border-color 0.15s;
+}
+.crate-item:hover { background: rgba(201,161,74,0.1); border-color: rgba(201,161,74,0.3); }
+.crate-item.playing { background: rgba(255,178,77,0.14); border-color: var(--brass); }
+.crate-item img, .crate-item .thumb {
+  width: 46px; height: 46px; border-radius: 5px; object-fit: cover; flex: none;
+  background: #1a1109; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+.crate-item .thumb { display: grid; place-items: center; color: var(--brass-dk); font-size: 20px; }
+.crate-item .meta { min-width: 0; display: flex; flex-direction: column; }
+.crate-item .nm { font-size: 16px; color: #f1e4c5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crate-item .sub { font-size: 12px; color: var(--ink-soft); font-family: "Special Elite", monospace; }
+.crate-item.track .idx { width: 22px; text-align: right; color: var(--brass-dk); font-family: "Special Elite", monospace; font-size: 13px; }
+.crate-item.track.playing .nm { color: var(--amber); text-shadow: 0 0 10px var(--amber-glow); }
+
+/* ---------- lyrics · the spotlight reel (neo-vintage) ---------- */
+.lyrics-stage { min-height: 0; display: flex; }
+.reel {
+  flex: 1 1 auto; min-height: 0; position: relative; overflow: hidden;
+  border-radius: 20px;
+  /* frosted glass with a warm amber core = modern surface, vintage glow */
+  background:
+    radial-gradient(120% 80% at 50% 48%, rgba(255,176,70,0.10), transparent 62%),
+    linear-gradient(165deg, rgba(40,30,21,0.70), rgba(16,12,8,0.82));
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  border: 1px solid rgba(201,161,74,0.20);
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    inset 0 0 70px rgba(0,0,0,0.35);
+}
+/* faint film grain keeps the vintage soul on the modern glass */
+.reel::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.045; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* the warm beam of light the active line passes through */
+.reel-beam {
+  position: absolute; left: 0; right: 0; top: 50%; height: 130px;
+  transform: translateY(-50%); z-index: 1; pointer-events: none;
+  background: radial-gradient(58% 100% at 50% 50%, rgba(255,176,70,0.16), transparent 72%);
+  animation: beam-pulse 4.5s ease-in-out infinite;
+}
+@keyframes beam-pulse { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+
+.lyrics-viewport {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  -webkit-mask-image: linear-gradient(transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(transparent, #000 20%, #000 80%, transparent);
+}
+.lyrics-viewport.scrollable {
+  overflow-y: auto; align-items: flex-start;
+  -webkit-mask-image: none; mask-image: none;
+}
+.lyrics-scroll {
+  width: 100%; padding: 0 7%; text-align: center;
+  /* the reel glides — a long, soft ease so lines flow rather than snap */
+  transition: transform 0.7s cubic-bezier(0.16, 0.84, 0.28, 1);
+  will-change: transform;
+}
+.lyrics-scroll.plain { text-align: left; padding: 24px 9%; }
+
+/* Each line is graded by its distance (--d) from the focus line, and every
+   property eases — so when the song advances the whole stack flows at once. */
+.lyric-line {
+  --d: 3;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 600; font-size: 30px; line-height: 1.4; margin: 12px 0;
+  color: rgba(240, 225, 195, 0.92);
+  opacity: calc(1 - 0.2 * min(var(--d), 4));
+  transform: scale(calc(1 - 0.07 * min(var(--d), 4)));
+  filter: blur(calc(min(var(--d), 4) * 0.5px));
+  transition:
+    transform 0.7s cubic-bezier(0.16, 0.84, 0.28, 1),
+    opacity 0.7s ease, filter 0.7s ease, color 0.7s ease;
+}
+.lyric-line.past { color: rgba(201, 161, 74, 0.55); }
+
+/* the focus line: bright, lifted, gently floating, glowing */
+.lyric-line.active {
+  color: #ffe7b3;
+  filter: drop-shadow(0 4px 22px rgba(255, 168, 60, 0.32));
+  animation: line-float 5.5s ease-in-out infinite;
+}
+@keyframes line-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+/* words of the focus line flow in, one after another */
+.w { display: inline-block; margin: 0 0.16em; will-change: transform, opacity; }
+.lyric-line.active .w {
+  animation: word-rise 0.6s cubic-bezier(0.2, 0.75, 0.2, 1) backwards;
+  animation-delay: calc(var(--i) * 0.05s);
+}
+@keyframes word-rise {
+  from { opacity: 0; transform: translateY(0.6em); filter: blur(7px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.lyrics-scroll.plain .lyric-line, .lyric-line.static {
+  font-size: 20px; font-weight: 500; color: rgba(240, 225, 195, 0.78);
+  opacity: 1; transform: none; filter: none; margin: 6px 0; animation: none;
+}
+.lyric-empty, .lyric-note { font-style: italic; color: rgba(240, 225, 195, 0.5); font-size: 21px; font-weight: 500; }
+.lyric-note.pad { padding: 12px; }
+.lyric-note.pulse { color: rgba(255, 200, 120, 0.7); animation: note-pulse 1.4s ease-in-out infinite; }
+@keyframes note-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+.reel-source {
+  position: absolute; bottom: 10px; right: 16px; z-index: 3;
+  font-family: "Special Elite", monospace; font-size: 10px; letter-spacing: 0.5px;
+  color: rgba(201,161,74,0.5);
+}
+
+/* ---------- turntable deck ---------- */
+.deck {
+  background: linear-gradient(160deg, rgba(44,33,23,0.58), rgba(18,13,9,0.66));
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid rgba(201,161,74,0.18);
+  border-radius: 18px; padding: 22px; display: flex; flex-direction: column;
+  align-items: center; gap: 18px; min-height: 0; overflow-y: auto;
+  box-shadow: 0 24px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.turntable { position: relative; width: 250px; height: 250px; flex: none; }
+.platter {
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, #34281c 0%, #1a120b 55%, #0d0907 100%);
+  /* thin brushed-brass rim = where modern hi-fi meets the old deck */
+  box-shadow:
+    0 18px 38px rgba(0,0,0,0.6),
+    inset 0 0 30px rgba(0,0,0,0.7),
+    0 0 0 2px rgba(201,161,74,0.18),
+    0 0 0 6px rgba(0,0,0,0.5),
+    0 0 22px rgba(255,176,70,0.10);
+  display: grid; place-items: center;
+}
+.vinyl {
+  width: 224px; height: 224px; border-radius: 50%; position: relative;
+  background:
+    repeating-radial-gradient(circle at 50% 50%, #0a0a0a 0 1px, #161616 1px 2.5px, #0d0d0d 2.5px 4px);
+  box-shadow: 0 0 0 3px #000, inset 0 0 40px rgba(0,0,0,0.8);
+  animation: spin 4s linear infinite; animation-play-state: paused;
+}
+.vinyl.spinning { animation-play-state: running; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.vinyl-sheen {
+  position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.08) 20deg, transparent 55deg, transparent 200deg, rgba(255,255,255,0.06) 230deg, transparent 270deg);
+}
+.label {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 96px; height: 96px; border-radius: 50%;
+  background: radial-gradient(circle, #b5532a, #7a2f12);
+  background-size: cover; background-position: center;
+  display: grid; place-items: center;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.3), 0 0 8px rgba(0,0,0,0.6);
+}
+.label-hole {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #050505; box-shadow: inset 0 0 4px rgba(255,255,255,0.25);
+}
+.tonearm {
+  position: absolute; top: -6px; right: -6px; width: 120px; height: 150px;
+  transform-origin: 88% 16%; transform: rotate(-32deg);
+  transition: transform 0.9s cubic-bezier(0.5, 0, 0.2, 1); z-index: 3;
+}
+.tonearm.down { transform: rotate(-6deg); }
+.tonearm-base {
+  position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-lt), var(--brass-dk));
+  box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.tonearm-arm {
+  position: absolute; top: 20px; right: 19px; width: 7px; height: 120px;
+  border-radius: 4px; transform-origin: top center; transform: rotate(8deg);
+  background: linear-gradient(90deg, #9a9a9e, #e6e6ea 40%, #8a8a8e);
+  box-shadow: 1px 0 3px rgba(0,0,0,0.5);
+}
+.tonearm-head {
+  position: absolute; bottom: -10px; left: -5px; width: 17px; height: 22px; border-radius: 3px;
+  background: linear-gradient(180deg, #2a2a2c, #111);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+/* VU meters */
+.vu { display: flex; gap: 14px; }
+.vu-meter {
+  position: relative; width: 92px; height: 50px; border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #f3e2b4, #d8c188);
+  border: 1px solid var(--brass-dk); overflow: hidden;
+  box-shadow: inset 0 0 14px rgba(120,84,34,0.4);
+}
+.vu-meter span {
+  position: absolute; bottom: 2px; right: 5px; font-family: "Special Elite", monospace;
+  font-size: 9px; color: #7a5a20;
+}
+.vu-meter::before {
+  content: ""; position: absolute; inset: 6px 8px auto 8px; height: 18px;
+  border-bottom: 1px solid rgba(120,84,34,0.4);
+  background: linear-gradient(90deg, transparent 70%, rgba(180,40,20,0.25) 70%);
+  border-radius: 40px 40px 0 0 / 30px;
+}
+.needle {
+  position: absolute; bottom: 4px; left: 50%; width: 2px; height: 38px;
+  background: #3a2a14; transform-origin: bottom center; transform: rotate(-38deg);
+  transition: transform 0.12s ease-out;
+}
+
+.nowplaying { text-align: center; }
+.np-title { font-family: "Cormorant Garamond"; font-size: 21px; font-weight: 600; color: #f3e7cf; }
+.np-artist { font-family: "Special Elite", monospace; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+.seek { display: flex; align-items: center; gap: 10px; width: 100%; }
+.seek .t { font-family: "Special Elite", monospace; font-size: 11px; color: var(--ink-soft); width: 34px; text-align: center; }
+.seekbar {
+  flex: 1; height: 6px; border-radius: 4px; cursor: pointer; position: relative;
+  background: linear-gradient(180deg, #1a110a, #2c1d10);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+}
+.seekfill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+  background: linear-gradient(90deg, var(--brass-dk), var(--brass-lt));
+  border-radius: 4px; box-shadow: 0 0 8px var(--amber-glow);
+}
+
+.transport { display: flex; align-items: center; gap: 16px; }
+.brass-knob {
+  width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+  font-size: 17px; color: #2a1c08;
+  background: radial-gradient(circle at 35% 28%, var(--brass-lt), var(--brass) 55%, var(--brass-dk));
+  border: 1px solid #5a4318;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.5);
+  transition: transform 0.08s;
+}
+.brass-knob.big {
+  width: 66px; height: 66px; font-size: 24px;
+  box-shadow:
+    0 4px 10px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.5),
+    0 0 22px rgba(255,176,70,0.4);
+}
+.brass-knob:hover { filter: brightness(1.08); box-shadow: 0 4px 10px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 18px rgba(255,176,70,0.45); }
+.brass-knob:active { transform: translateY(2px); }
+
+.volume { display: flex; align-items: center; gap: 10px; width: 100%; }
+.vol-ico { font-size: 14px; opacity: 0.8; }
+.vol {
+  -webkit-appearance: none; appearance: none; flex: 1; height: 5px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--brass) 0%, var(--brass) 70%, #2c1d10 70%);
+  outline: none;
+}
+.vol::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--brass-lt), var(--brass-dk));
+  border: 1px solid #5a4318; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.vol::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%; border: 1px solid #5a4318;
+  background: radial-gradient(circle at 35% 30%, var(--brass-lt), var(--brass-dk)); cursor: pointer;
+}
+
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-thumb { background: var(--brass-dk); border-radius: 6px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+
+@media (max-width: 1080px) {
+  html, body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .stage { flex-direction: column; }
+  .stage > app-search,
+  .stage > app-lyrics,
+  .stage > app-deck { flex: none; width: 100%; }
+  .crate { max-height: 55vh; }
+  .lyrics-stage { min-height: 80vh; }
+}
