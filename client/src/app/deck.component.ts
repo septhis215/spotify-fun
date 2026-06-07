@@ -12,38 +12,21 @@ import { PlayerService } from './player.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="deck">
-      <div class="turntable">
-        <div class="platter">
-          <div class="vinyl" [class.spinning]="svc.isPlaying()">
-            <div class="vinyl-sheen"></div>
-            <div
-              class="label"
-              [style.background-image]="labelImage()"
-            >
-              <div class="label-hole"></div>
-            </div>
-          </div>
-        </div>
-        <div class="tonearm" [class.down]="svc.isPlaying()">
-          <div class="tonearm-base"></div>
-          <div class="tonearm-arm"><div class="tonearm-head"></div></div>
-        </div>
+      <div class="disc" [class.spinning]="svc.isPlaying()">
+        <div class="disc-ring"></div>
+        <div class="disc-art" [style.background-image]="artImage()"></div>
+        <div class="disc-hole"></div>
       </div>
 
-      <div class="vu">
-        <div class="vu-meter">
-          <div class="needle" [style.transform]="'rotate(' + svc.vu().l + 'deg)'"></div>
-          <span>L</span>
-        </div>
-        <div class="vu-meter">
-          <div class="needle" [style.transform]="'rotate(' + svc.vu().r + 'deg)'"></div>
-          <span>R</span>
-        </div>
+      <div class="eq" [class.live]="svc.isPlaying()">
+        @for (b of bars; track $index) {
+          <span class="eq-bar" [style.--i]="$index" [style.--h]="svc.vuBands()[$index]"></span>
+        }
       </div>
 
-      <div class="nowplaying">
-        <div class="np-title">{{ svc.nowPlaying()?.title ?? 'Nothing on the deck' }}</div>
-        <div class="np-artist">{{ svc.nowPlaying()?.artist ?? '—' }}</div>
+      <div class="lcd">
+        <div class="lcd-title">{{ svc.nowPlaying()?.title ?? 'NO SIGNAL' }}</div>
+        <div class="lcd-artist">{{ svc.nowPlaying()?.artist ?? '— — —' }}</div>
       </div>
 
       <div class="seek">
@@ -55,15 +38,15 @@ import { PlayerService } from './player.service';
       </div>
 
       <div class="transport">
-        <button class="brass-knob" title="Previous" (click)="svc.prev()">⏮</button>
-        <button class="brass-knob big" title="Play / Pause" (click)="svc.togglePlay()">
-          {{ svc.playback().paused ? '⏵' : '⏸' }}
+        <button class="dbtn" title="Previous" (click)="svc.prev()">⏮</button>
+        <button class="dbtn play" title="Play / Pause" (click)="svc.togglePlay()">
+          {{ svc.playback().paused ? '▶' : '❚❚' }}
         </button>
-        <button class="brass-knob" title="Next" (click)="svc.next()">⏭</button>
+        <button class="dbtn" title="Next" (click)="svc.next()">⏭</button>
       </div>
 
       <div class="volume">
-        <span class="vol-ico">🔈</span>
+        <span class="vol-ico">VOL</span>
         <input
           class="vol"
           type="range"
@@ -80,8 +63,9 @@ import { PlayerService } from './player.service';
 export class DeckComponent {
   svc = inject(PlayerService);
   vol = signal(70);
+  bars = Array.from({ length: 18 });
 
-  labelImage = computed(() => {
+  artImage = computed(() => {
     const url = this.svc.nowPlaying()?.imageUrl;
     return url ? `url("${url}")` : 'none';
   });
@@ -93,7 +77,7 @@ export class DeckComponent {
 
   volBg = computed(
     () =>
-      `linear-gradient(90deg, var(--brass) 0%, var(--brass) ${this.vol()}%, #2c1d10 ${this.vol()}%)`,
+      `linear-gradient(90deg, var(--cyan) 0%, var(--cyan) ${this.vol()}%, #060b18 ${this.vol()}%)`,
   );
 
   fmt(ms: number): string {

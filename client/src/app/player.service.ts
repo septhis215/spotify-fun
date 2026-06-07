@@ -36,6 +36,7 @@ export class PlayerService {
   // throttled UI clocks (updated by the rAF loop)
   readonly progressMs = signal(0);
   readonly vu = signal<{ l: number; r: number }>({ l: -38, r: -38 });
+  readonly vuBands = signal<number[]>(Array(18).fill(0));
 
   readonly isPlaying = computed(
     () => !this.playback().paused && this.playback().durationMs > 0,
@@ -47,6 +48,14 @@ export class PlayerService {
   private lyricsToken = 0;
   private lastProg = 0;
   private lastVu = 0;
+
+  // Web Audio API for real-time frequency analysis
+  private audioCtx: AudioContext | null = null;
+  private analyser: AnalyserNode | null = null;
+  private freqData = new Uint8Array(0);
+  private lastBands: number[] = Array(18).fill(0);
+  // Per-bar phase seeds for the musical simulation fallback
+  private readonly bandSeeds = Array.from({ length: 18 }, () => Math.random() * Math.PI * 2);
   /** The track the user just selected and is loading; the SDK keeps playing the
    *  old track meanwhile, so onPlayerState must ignore it until this clears. */
   private pendingUri: string | null = null;
@@ -223,6 +232,7 @@ export class PlayerService {
     // lyrics have finished loading so the song starts in sync with them.
     try {
       if (this.player?.activateElement) await this.player.activateElement();
+      this.connectAnalyser(); // tap audio element while we have a user gesture
     } catch {
       /* ignore */
     }
@@ -292,6 +302,73 @@ export class PlayerService {
     this.lyricsLoading.set(false);
   }
 
+  // ---- Web Audio frequency analysis ----
+  /** Called once inside a user-gesture (click → playFrom). */
+  private connectAnalyser(): void {
+    if (this.analyser) return;
+    const audioEl = document.querySelector('audio') as HTMLMediaElement | null;
+    if (!audioEl) return;
+    try {
+      const ctx = new AudioContext();
+      const src = ctx.createMediaElementSource(audioEl);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.82;
+      src.connect(analyser);
+      analyser.connect(ctx.destination);
+      this.audioCtx = ctx;
+      this.analyser = analyser;
+      this.freqData = new Uint8Array(analyser.frequencyBinCount);
+    } catch {
+      // CORS restriction from Spotify CDN — simulation fallback will be used
+    }
+  }
+
+  private updateBands(): void {
+    const playing = this.isPlaying();
+    const N = 18;
+
+    if (this.analyser && playing) {
+      // Resume AudioContext if it was suspended by browser autoplay policy
+      if (this.audioCtx?.state === 'suspended') this.audioCtx.resume();
+      this.analyser.getByteFrequencyData(this.freqData);
+      const binCount = this.freqData.length; // 512 for fftSize=1024
+      // Map bins to bars using log scale so bass bars aren't all in bin 0
+      const bands = Array.from({ length: N }, (_, i) => {
+        const lo = Math.max(0, Math.round(Math.pow(binCount, i / N)));
+        const hi = Math.min(binCount - 1, Math.round(Math.pow(binCount, (i + 1) / N)));
+        let sum = 0;
+        const count = hi - lo + 1;
+        for (let b = lo; b <= hi; b++) sum += this.freqData[b];
+        return Math.round((sum / count / 255) * 100);
+      });
+      this.lastBands = bands;
+      this.vuBands.set(bands);
+    } else if (!playing) {
+      // Decay bars to silence
+      const decayed = this.lastBands.map(v => Math.max(0, v - 10));
+      this.lastBands = decayed;
+      this.vuBands.set([...decayed]);
+    } else {
+      // Musical simulation: bass-heavy, multi-harmonic, per-bar phase
+      const t = performance.now() / 1000;
+      const bands = Array.from({ length: N }, (_, i) => {
+        const ratio = i / (N - 1); // 0 = sub-bass, 1 = treble
+        const amp = 85 - ratio * 48; // bass bars swing higher
+        const speed = 1.1 + ratio * 3.2;
+        const seed = this.bandSeeds[i];
+        const v =
+          Math.sin(t * speed + seed) * 0.44 +
+          Math.sin(t * speed * 1.73 + seed * 1.5) * 0.28 +
+          Math.sin(t * speed * 2.61 + seed * 0.9) * 0.18 +
+          Math.random() * 0.10;
+        return Math.round(Math.max(6, (amp * (v + 1)) / 2));
+      });
+      this.lastBands = bands;
+      this.vuBands.set(bands);
+    }
+  }
+
   // ---- live clock ----
   /** Interpolated current playback position in ms (smooth, per-frame safe). */
   livePositionMs(): number {
@@ -326,11 +403,9 @@ export class PlayerService {
       this.lastProg = now;
       this.progressMs.set(pos);
     }
-    if (now - this.lastVu > 110) {
+    if (now - this.lastVu > 40) { // ~25 fps for EQ
       this.lastVu = now;
-      const playing = this.isPlaying();
-      const j = () => (playing ? -8 - Math.random() * 30 : -38);
-      this.vu.set({ l: j(), r: j() });
+      this.updateBands();
     }
 
     requestAnimationFrame(this.loop);
