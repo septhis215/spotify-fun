@@ -50,7 +50,7 @@ import { PlayerService } from './player.service';
           <div class="lyric-note pad">No records found under that name.</div>
         } @else {
           <div class="lyric-note pad">
-            Search Spotify’s catalogue, then drop a record on the turntable to
+            Search Spotify's catalogue, then drop a record on the turntable to
             read along.
           </div>
         }

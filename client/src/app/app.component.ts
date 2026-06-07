@@ -15,10 +15,10 @@ import { LyricsComponent } from './lyrics.component';
     @if (svc.connected() === false) {
       <div class="gate">
         <div class="gate-card">
-          <div class="gate-emblem">❧</div>
-          <h1>The Gramophone</h1>
-          <p>A vintage way to play your Spotify library.</p>
-          <a class="brass-btn" href="/login">Wind up &amp; connect Spotify</a>
+          <div class="gate-emblem">▮▮▮</div>
+          <h1>SOUNDWAVE</h1>
+          <p>Tune in to your Spotify library.</p>
+          <a class="brass-btn" href="/login">▶ Connect Spotify</a>
         </div>
       </div>
     }
@@ -30,7 +30,7 @@ import { LyricsComponent } from './lyrics.component';
     @if (svc.connected()) {
       <div class="app">
         <header class="topbar">
-          <div class="brand"><span class="brand-mark">❧</span> The Gramophone</div>
+          <div class="brand"><span class="brand-mark">▮▮▮</span> SOUNDWAVE</div>
           <div class="who">
             @if (svc.profile()?.imageUrl; as img) {
               <img class="avatar" [src]="img" alt="" />
